@@ -14,5 +14,11 @@ public class MotoMappingProfile : Profile
             .ForMember(m => m.PostalCode, c => c.MapFrom(s => s.Address.PostalCode));
 
         CreateMap<Car, CarDto>();
+
+        CreateMap<CreateMotoDto, Moto>()
+            .ForMember(m => m.Address,
+                c => c.MapFrom(dto => new Address()
+                    { City = dto.City, PostalCode = dto.PostalCode, Street = dto.Street }));
+
     }
 }

@@ -25,13 +25,13 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Include="..\Models\CarDto.cs">
+      <Compile Update="Models\CarDto.cs">
         <Link>Models\CarDto.cs</Link>
       </Compile>
-      <Compile Include="..\Models\CreateMotoDto.cs">
+      <Compile Update="Models\CreateMotoDto.cs">
         <Link>Models\CreateMotoDto.cs</Link>
       </Compile>
-      <Compile Include="..\Models\MotoDto.cs">
+      <Compile Update="Models\MotoDto.cs">
         <Link>Models\MotoDto.cs</Link>
       </Compile>
     </ItemGroup>
