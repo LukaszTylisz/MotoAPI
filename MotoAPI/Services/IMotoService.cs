@@ -7,6 +7,6 @@ public interface IMotoService
     MotoDto GetById(int id);
     IEnumerable<MotoDto> GetAll();
     int Create(CreateMotoDto dto);
-    bool Delete(int id);
-    bool Update(int id, UpdateMotoDto dto);
+    void Delete(int id);
+    void Update(int id, UpdateMotoDto dto);
 }

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using MotoAPI.Entitites;
+using MotoAPI.Exceptions;
 using MotoAPI.Migrations;
 using MotoAPI.Models;
 
@@ -10,44 +11,44 @@ public class MotoService : IMotoService
 {
     private readonly MotoDbContext _dbContext;
     private readonly IMapper _mapper;
+    private readonly ILogger<MotoService> _logger;
 
-    public MotoService(MotoDbContext dbContext, IMapper mapper)
+    public MotoService(MotoDbContext dbContext, IMapper mapper, ILogger<MotoService> logger)
     {
         _dbContext = dbContext;
         _mapper = mapper;
+        _logger = logger;
     }
 
-    public bool Update(int id, UpdateMotoDto dto)
+    public void Update(int id, UpdateMotoDto dto)
     {
         var moto = _dbContext
             .Motos
             .FirstOrDefault(m => m.Id == id);
-        
-        if (moto is null) 
-            return false;
+
+        if (moto is null)
+            throw new NotFoundException("MotoShowroom not found");
 
         moto.Name = dto.Name;
         moto.Description = dto.Description;
         moto.HasService = dto.HasDelivery;
 
         _dbContext.SaveChanges();
-
-        return true;
     }
 
-    public bool Delete(int id)
+    public void Delete(int id)
     {
+        _logger.LogWarning($"MotoShowroom with id: {id} DELETE action invoked");
+        
         var moto = _dbContext
             .Motos
             .FirstOrDefault(m => m.Id == id);
 
         if (moto is null) 
-            return false;
+            throw new NotFoundException("MotoShowroom not found");
 
         _dbContext.Motos.Remove(moto);
         _dbContext.SaveChanges();
-
-        return true;
     }
     
     public MotoDto GetById(int id)
@@ -58,9 +59,11 @@ public class MotoService : IMotoService
             .Include(m => m.Cars)
             .FirstOrDefault(m => m.Id == id);
 
-        if (moto is null) return null;
+        if (moto is null)
+            throw new NotFoundException("MotoShowroom not found");
 
         var result = _mapper.Map<MotoDto>(moto);
+        
         return result;
     }
 
