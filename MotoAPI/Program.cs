@@ -4,6 +4,7 @@ using MotoAPI;
 using MotoAPI.Entitites;
 using MotoAPI.Middleware;
 using MotoAPI.Services;
+using MotoAPI.Services.Interface;
 using NLog.Web;
 
 var builder = WebApplication.CreateBuilder(args);

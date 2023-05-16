@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MotoAPI.Models;
 using MotoAPI.Services;
+using MotoAPI.Services.Interface;
 
 namespace MotoAPI.Controllers;
 

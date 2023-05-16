@@ -2,8 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using MotoAPI.Entitites;
 using MotoAPI.Exceptions;
-using MotoAPI.Migrations;
 using MotoAPI.Models;
+using MotoAPI.Services.Interface;
 
 namespace MotoAPI.Services;
 

@@ -13,6 +13,8 @@ public class MotoDbContext : DbContext
     public DbSet<Moto> Motos { get; set; }
     public DbSet<Address> Addresses { get; set; }
     public DbSet<Car> Cars { get; set; }
+    public DbSet<User> Users { get; set; }
+    public DbSet<Role> Roles { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -22,7 +24,7 @@ public class MotoDbContext : DbContext
             .HasMaxLength(50);
 
         modelBuilder.Entity<Car>()
-            .Property(c => c.Model)
+            .Property(c => c.Model) 
             .IsRequired();
 
         modelBuilder.Entity<Address>()
