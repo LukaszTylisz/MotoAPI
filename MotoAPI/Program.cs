@@ -22,6 +22,7 @@ builder.Services.AddDbContext<MotoDbContext>
 (options => options.UseSqlServer(builder.Configuration.GetConnectionString("MotoDbConnection")));
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 builder.Services.AddScoped<IMotoService, MotoService>();
+builder.Services.AddScoped<ICarService, CarService>();
 builder.Services.AddScoped<ErrorHandlingMiddleware>();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<RequestTimeMiddleware>();

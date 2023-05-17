@@ -1,8 +1,11 @@
-﻿namespace MotoAPI.Models;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace MotoAPI.Models;
 
 public class CreateCarDto
 {
-    public string Name { get; set; }
+    [Required]
+    public string Model { get; set; }
     public string Description { get; set; }
     public decimal Price { get; set; }
     
