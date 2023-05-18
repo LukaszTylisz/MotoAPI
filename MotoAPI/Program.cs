@@ -1,28 +1,60 @@
 using System.Reflection;
+using System.Text;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using MotoAPI;
 using MotoAPI.Entitites;
 using MotoAPI.Middleware;
+using MotoAPI.Models;
+using MotoAPI.Models.Validators;
 using MotoAPI.Services;
 using MotoAPI.Services.Interface;
 using NLog.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseNLog();
-//builder.Logging.ClearProviders();
-//builder.Logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+var authenticationSettings = new AuthenticationSettings();
+
+builder.Configuration.GetSection("Authentication").Bind(authenticationSettings);
+builder.Services.AddSingleton(authenticationSettings);
+
+builder.Services.AddAuthentication(option =>
+{
+    option.DefaultAuthenticateScheme = "Bearer";
+    option.DefaultScheme = "Bearer";
+    option.DefaultChallengeScheme = "Bearer";
+}).AddJwtBearer(cfg =>
+    {
+        cfg.RequireHttpsMetadata = false;
+        cfg.SaveToken = false;
+        cfg.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidIssuer = authenticationSettings.JwtIssuer,
+            ValidAudience = authenticationSettings.JwtIssuer,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authenticationSettings.JwtKey))
+        };
+    }
+);
+
+builder.Services.AddControllers().AddFluentValidation();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<MotoSeeder>();
 builder.Services.AddDbContext<MotoDbContext>
-(options => options.UseSqlServer(builder.Configuration.GetConnectionString("MotoDbConnection")));
+    (options => options.UseSqlServer(builder.Configuration.GetConnectionString("MotoDbConnection")));
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 builder.Services.AddScoped<IMotoService, MotoService>();
 builder.Services.AddScoped<ICarService, CarService>();
+builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IUserContextService, UserContextService>();
+builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+builder.Services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
 builder.Services.AddScoped<ErrorHandlingMiddleware>();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<RequestTimeMiddleware>();
@@ -47,6 +79,7 @@ app.UseSwaggerUI(c =>
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseMiddleware<RequestTimeMiddleware>();
+app.UseAuthentication();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

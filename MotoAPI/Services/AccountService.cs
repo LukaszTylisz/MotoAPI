@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MotoAPI.Entitites;
+using MotoAPI.Exceptions;
 using MotoAPI.Models;
 
 namespace MotoAPI.Services;
@@ -47,13 +48,13 @@ public class AccountService : IAccountService
 
         if (user is null)
         {
-            throw new BadHttpRequestException("Invalid username or password");
+            throw new BadRequestException("Invalid username or password");
         }
 
         var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, dto.Password);
         if (result == PasswordVerificationResult.Failed)
         {
-            throw new BadHttpRequestException("Ivalid username or password");
+            throw new BadRequestException("Ivalid username or password");
         }
 
         var claims = new List<Claim>()

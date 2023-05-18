@@ -18,6 +18,14 @@ public class MotoDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<User>()
+            .Property(u => u.Email)
+            .IsRequired();
+        
+        modelBuilder.Entity<Role>()
+            .Property(u => u.Name)
+            .IsRequired();
+        
         modelBuilder.Entity<Moto>()
             .Property(m => m.Name)
             .IsRequired()
