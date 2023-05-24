@@ -1,12 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MotoAPI.Models;
-using MotoAPI.Services;
 using MotoAPI.Services.Interface;
 
 namespace MotoAPI.Controllers;
 
 [Route("api/moto")]
 [ApiController]
+[Authorize]
+
 public class MotoController : ControllerBase
 {
     private readonly IMotoService _motoService;
@@ -14,6 +17,16 @@ public class MotoController : ControllerBase
     public MotoController(IMotoService motoService)
     {
         _motoService = motoService;
+    }
+    
+    [HttpPost]
+    [Authorize(Roles = "Admin, Manager")]
+    public ActionResult CreateMoto([FromBody] CreateMotoDto dto)
+    {
+        var userId = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier)?.Value!);
+        var id = _motoService.Create(dto);
+        
+        return Created($"/api/moto/{id}", null);
     }
 
     [HttpPut("{id}")]
@@ -32,17 +45,9 @@ public class MotoController : ControllerBase
         
         return NoContent();
     }
-
-
-    [HttpPost]
-    public ActionResult CreateMoto([FromBody] CreateMotoDto dto)
-    {
-        var id = _motoService.Create(dto);
-
-        return Created($"/api/moto/{id}", null);
-    }
-
+    
     [HttpGet]
+    [Authorize(Policy = "CreatedAtleast2Motos")]
     public ActionResult<MotoDto> GetAll()
     {
         var motosDtos = _motoService.GetAll();
@@ -51,6 +56,7 @@ public class MotoController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [AllowAnonymous]
     public ActionResult<MotoDto> Get([FromRoute] int id)
     {
         var moto = _motoService.GetById(id);

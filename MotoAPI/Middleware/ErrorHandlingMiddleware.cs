@@ -1,4 +1,5 @@
-﻿using MotoAPI.Exceptions;
+﻿using System.Runtime.InteropServices.JavaScript;
+using MotoAPI.Exceptions;
 
 namespace MotoAPI.Middleware;
 
@@ -17,6 +18,10 @@ public class ErrorHandlingMiddleware : IMiddleware
         {
             await next.Invoke(context);
         }
+        catch (ForbidException forbidException)
+        {
+            context.Response.StatusCode = 403;
+        }
         catch (BadRequestException badRequestException)
         {
             context.Response.StatusCode = 400;
@@ -30,7 +35,6 @@ public class ErrorHandlingMiddleware : IMiddleware
         catch (Exception e)
         {
             _logger.LogError(e, e.Message);
-
             context.Response.StatusCode = 500;
             await context.Response.WriteAsync("Something went wrong");
         }
