@@ -12,9 +12,11 @@ public class CreatedMultipleMotosRequirementHandler : AuthorizationHandler<Creat
     {
         _context = context;
     }
-    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, CreatedMultipleMotosRequirement requirement)
+    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context,
+        CreatedMultipleMotosRequirement requirement)
     {
-        var userId = int.Parse(context.User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value);
+        var userId = int.Parse(context.User.FindFirst(c => 
+            c.Type == ClaimTypes.NameIdentifier).Value);
 
         var createdMotosCount = _context
             .Motos

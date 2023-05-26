@@ -18,12 +18,12 @@ using NLog.Web;
 
 var builder = WebApplication.CreateBuilder();
 
+// NLog: Setup NLog for Dependency injection
 builder.Logging.ClearProviders();
-builder.Logging.SetMinimumLevel(LogLevel.Trace);
+builder.Logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
 builder.Host.UseNLog();
 
-// Add services to the container.
-
+// configre service
 var authenticationSettings = new AuthenticationSettings();
 
 builder.Configuration.GetSection("Authentication").Bind(authenticationSettings);
@@ -47,17 +47,16 @@ builder.Services.AddAuthentication(option =>
 });
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("HasNationality", builder => builder.RequireClaim("Nationality", "German", "Polish"));
-    options.AddPolicy("Atleast20", builder => builder.AddRequirements(new MinimumAgeRequirement(20)));
+    options.AddPolicy("HasNationality", builders => builders.RequireClaim("Nationality"));
+    options.AddPolicy("Atleast20", builders => builders.AddRequirements(new MinimumAgeRequirement(20)));
     options.AddPolicy("CreatedAtleast2Motos",
-        builder => builder.AddRequirements(new CreatedMultipleMotosRequirement(2)));
+        builders => builders.AddRequirements(new CreatedMultipleMotosRequirement(2)));
 });
 
 builder.Services.AddScoped<IAuthorizationHandler, CreatedMultipleMotosRequirementHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, MinimumAgeRequirementHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, ResourceRequirementOperationHandler>();
 builder.Services.AddControllers().AddFluentValidation();
-
 
 builder.Services.AddScoped<MotoSeeder>();
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());

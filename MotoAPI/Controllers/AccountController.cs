@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MotoAPI.Models;
 using MotoAPI.Services;
+using MotoAPI.Services.Interface;
 
 namespace MotoAPI.Controllers;
 
@@ -14,7 +15,7 @@ public class AccountController : ControllerBase
     {
         _accountService = accountService;
     }
-    
+
     [HttpPost("register")]
     public ActionResult RegisterUser([FromBody] RegisterUserDto dto)
     {

@@ -1,6 +1,6 @@
 ﻿using MotoAPI.Models;
 
-namespace MotoAPI.Services;
+namespace MotoAPI.Services.Interface;
 
 public interface IAccountService
 {
