@@ -17,7 +17,7 @@ public class MotoQueryValidator : AbstractValidator<MotoQuery>
         {
             if (!allowedPageSizes.Contains(value))
             {
-                context.AddFailure("PageSize", $"Pagesize must int [{string.Join(",", allowedPageSizes)}]");
+                context.AddFailure("PageSize", $"Pagesize must in [{string.Join(",", allowedPageSizes)}]");
             }
         });
 

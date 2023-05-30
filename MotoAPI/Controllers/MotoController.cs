@@ -47,14 +47,14 @@ public class MotoController : ControllerBase
     }
     
     [HttpGet]
-    [Authorize(Policy = "CreatedAtleast2Motos")]
-    public ActionResult<MotoDto> GetAll()
+    [AllowAnonymous]
+    public ActionResult<IEnumerable<MotoDto>> GetAll([FromQuery] MotoQuery query)
     {
-        var motosDtos = _motoService.GetAll();
+        var motosDtos = _motoService.GetAll(query);
 
         return Ok(motosDtos);
     }
-
+ 
     [HttpGet("{id}")]
     [AllowAnonymous]
     public ActionResult<MotoDto> Get([FromRoute] int id)

@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Linq.Expressions;
+using System.Security.Claims;
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -28,7 +29,7 @@ public class MotoService : IMotoService
         _authorizationService = authorizationService;
         _userContextService = userContextService;
     }
-    
+
     public int Create(CreateMotoDto dto)
     {
         var moto = _mapper.Map<Moto>(dto);
@@ -56,7 +57,7 @@ public class MotoService : IMotoService
         {
             throw new ForbidException();
         }
-        
+
         moto.Name = dto.Name;
         moto.Description = dto.Description;
         moto.HasService = dto.HasDelivery;
@@ -64,7 +65,7 @@ public class MotoService : IMotoService
         _dbContext.SaveChanges();
     }
 
-    public void Delete(int id )
+    public void Delete(int id)
     {
         _logger.LogWarning($"MotoShowroom with id: {id} DELETE action invoked");
 
@@ -78,8 +79,8 @@ public class MotoService : IMotoService
         var authorizationResult = _authorizationService.AuthorizeAsync(_userContextService.User, moto,
                 new ResourceOperationRequirement(ResourceOperation.Delete))
             .Result;
-        
-        if(!authorizationResult.Succeeded)
+
+        if (!authorizationResult.Succeeded)
         {
             throw new ForbidException();
         }
@@ -104,16 +105,43 @@ public class MotoService : IMotoService
         return result;
     }
 
-    public IEnumerable<MotoDto> GetAll()
+    public PageResult<MotoDto> GetAll(MotoQuery query)
     {
-        var motos = _dbContext
+        var baseQuery = _dbContext
             .Motos
             .Include(m => m.Address)
             .Include(m => m.Cars)
+            .Where(r => query.SearchPhrase == null || (r.Name.ToLower().Contains(query.SearchPhrase.ToLower())
+                                                       || r.Description.ToLower()
+                                                           .Contains(query.SearchPhrase.ToLower())));
+
+        if (!string.IsNullOrEmpty(query.SortBy))
+        {
+            var columnsSelectors = new Dictionary<string, Expression<Func<Moto, object>>>
+            {
+                { nameof(Moto.Name), r => r.Name },
+                { nameof(Moto.Description), r => r.Description },
+                { nameof(Moto.Category), r => r.Category }
+            };
+
+            var selectedColumn = columnsSelectors[query.SortBy];
+
+            baseQuery = query.SortDirection == SortDirection.ASC
+                ? baseQuery.OrderBy(selectedColumn)
+                : baseQuery.OrderByDescending(selectedColumn);
+        }
+
+        var motos = baseQuery
+            .Skip(query.PageSize * (query.PageNumber - 1))
+            .Take(query.PageSize)
             .ToList();
+
+        var totalItemsCount = baseQuery.Count();
 
         var motosDtos = _mapper.Map<List<MotoDto>>(motos);
 
-        return motosDtos;
+        var result = new PageResult<MotoDto>(motosDtos, totalItemsCount, query.PageSize, query.PageNumber);
+
+        return result;
     }
 }
